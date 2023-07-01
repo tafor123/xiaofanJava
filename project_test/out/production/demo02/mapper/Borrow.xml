@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo02.mapper.BorrowMapper">
+
+
+    <select id="listByCondition" resultType="com.example.demo02.entity.Borrow">
+        select * from borrow
+        <where>
+            <if test="book_name != null and book_name != ''">
+                book_name  like concat('%', #{ book_name  }, '%' )
+            </if>
+            <if test="book_no != null and book_no != ''">
+                and book_no = #{book_no}
+            </if>
+            <if test="user_name != null and user_name != ''">
+                and user_name  like concat('%', #{ user_name  }, '%' )
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="listReturByCondition" resultType="com.example.demo02.entity.Retur">
+        select * from retur
+        <where>
+            <if test="book_name != null and book_name != ''">
+                book_name  like concat('%', #{ book_name  }, '%' )
+            </if>
+            <if test="book_no != null and book_no != ''">
+                and book_no = #{book_no}
+            </if>
+            <if test="user_name != null and user_name != ''">
+                and user_name  like concat('%', #{ user_name  }, '%' )
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <insert id="saveRetur">
+        insert into retur( book_name,book_no,user_no,user_name,user_phone,score,days,return_date,real_date,status)
+        values( #{book_name}, #{book_no}, #{user_no}, #{user_name}, #{user_phone}, #{score},#{days},#{return_date},#{real_date},#{status})
+    </insert>
+    
+    <insert id="save">
+        insert into borrow( book_name,book_no,user_no,user_name,user_phone,score,days,return_date)
+        values( #{book_name}, #{book_no}, #{user_no}, #{user_name}, #{user_phone}, #{score},#{days},#{return_date})
+    </insert>
+    
+    <update id="updateById">
+        update borrow set book_name = #{book_name}, book_no=#{book_no}, user_no=#{user_no},
+        user_name=#{user_name},user_phone=#{user_phone},score=#{score},status=#{status},
+        days=#{days},return_date = #{return_date}, updatetime =#{updatetime} where id= #{id}
+    </update>
+
+    <update id="updateStatus">
+        update borrow set status = #{arg0} where id = #{arg1}
+    </update>
+
+    <delete id="deleteById">
+        delete from borrow where id= #{id}
+    </delete>
+
+    <delete id="deleteReturById">
+        delete from retur where id= #{id}
+    </delete>
+
+    <select id="list" resultType="com.example.demo02.entity.Borrow">
+        select * from borrow order by id desc
+    </select>
+
+
+    <select id="getById" resultType="com.example.demo02.entity.Borrow">
+        select * from borrow where id = #{id}
+    </select>
+
+    <select id="getCountByTimeRange" resultType="com.example.demo02.mapper.po.BorrowReturCountPO">
+        select count(id) as count, DATE_FORMAT(createtime,'%Y-%m-%d') as date from
+        <if test="type == 1">
+            borrow
+        </if>
+        <if test="type == 2">
+            retur
+        </if>
+        where
+        <choose>
+            <when test="timeRange == 'week'">
+                createtime >=  DATE_SUB(NOW(),INTERVAL 1 WEEK)
+            </when>
+            <when test="timeRange == 'month'">
+                createtime >=  DATE_SUB(NOW(),INTERVAL 1 MONTH)
+            </when>
+            <when test="timeRange == 'month2'">
+                createtime >=  DATE_SUB(NOW(),INTERVAL 2 MONTH)
+            </when>
+            <when test="timeRange == 'month3'">
+                createtime >=  DATE_SUB(NOW(),INTERVAL 3 MONTH)
+            </when>
+            <otherwise>
+                createtime > now()
+            </otherwise>
+        </choose>
+        group by date
+    </select>
+
+
+</mapper>

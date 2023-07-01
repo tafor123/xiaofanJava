@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo02.mapper.BookMapper">
+
+
+    <select id="listByCondition" resultType="com.example.demo02.entity.Book">
+        select * from book
+        <where>
+            <if test="name != null and name != ''">
+                name like concat('%', #{ name }, '%' )
+            </if>
+            <if test="book_no != null and book_no != ''">
+                and book_no = #{book_no}
+            </if>
+        </where>
+        order by id desc
+    </select>
+    
+    <insert id="save">
+        insert into book( name,description,publish_date,author,publish,category,book_no,cover,score,nums)
+        values( #{name}, #{description}, #{publish_date}, #{author}, #{publish}, #{category}, #{book_no}, #{cover},#{score},#{nums})
+    </insert>
+    
+    <update id="updateById">
+        update book set name = #{name}, description=#{description}, publish_date=#{publish_date},
+        author=#{author},publish=#{publish},category=#{category},cover=#{cover},book_no=#{book_no},
+        score=#{score},nums=#{nums}, updatetime =#{updatetime} where id= #{id}
+    </update>
+
+    <update id="updateNumByNo">
+        update book set nums = nums + 1 where book_no =#{book_no}
+    </update>
+
+    <delete id="deleteById">
+        delete from book where id= #{id}
+    </delete>
+
+    <select id="list" resultType="com.example.demo02.entity.Book">
+        select * from book order by id desc
+    </select>
+
+    <select id="getById" resultType="com.example.demo02.entity.Book">
+        select * from book where id = #{id}
+    </select>
+
+    <select id="getByBookNo" resultType="com.example.demo02.entity.Book">
+        select * from book where book_no = #{book_no}
+    </select>
+
+</mapper>
