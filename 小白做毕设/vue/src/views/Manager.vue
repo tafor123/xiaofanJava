@@ -11,34 +11,17 @@
 
         <el-menu :collapse="isCollaspe" :collaspe-transition="false"  router background-color="#001529" text-color="rgba(255,255,255, 0.65)"
                  active-text-color="#fff" style="border: none;"  :default-active="$route.path">
-          <el-menu-item index="/">
-            <template>
-              <i class=" el-icon-house"></i>
+          <el-menu-item index="/home">
+              <i class=" el-icon-s-home"></i>
               <span>系统首页</span>
-            </template>
           </el-menu-item>
 
-          <el-menu-item index="1">
-            <template>
-              <i class=" el-icon-house"></i>
-              <span>系统首页</span>
-            </template>
-          </el-menu-item>
-          <el-menu-item index="2">
-            <template>
-              <i class=" el-icon-house"></i>
-              <span>系统首页</span>
-            </template>
-          </el-menu-item>
-
-
-          <el-submenu>
+          <el-submenu index="info" v-if="user.role === '管理员'">
             <template slot="title">
               <i class=" el-icon-menu"></i>
               <span>用户首页</span>
             </template>
-            <el-menu-item>用户信息</el-menu-item>
-            <el-menu-item>管理员信息</el-menu-item>
+            <el-menu-item index="/user">用户信息</el-menu-item>
           </el-submenu>
 
         </el-menu>
@@ -52,20 +35,20 @@
           <i :class="change" style="width: 26px; font-size: 26px" @click="handelCollaspe"></i>
           <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-left: 20px">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item :to="{ path: '/user' }">用户管理</el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: $router.path }">{{ $route.meta.name }}</el-breadcrumb-item>
           </el-breadcrumb>
 
           <div style="flex: 1; width: 0; display: flex; align-items: center; justify-content: flex-end">
             <i class="el-icon-quanping" style="font-size:26px;" @click="handelFull"></i>
             <el-dropdown placement="bottom">
               <div style="display: flex;align-items: center;cursor: default">
-                <img src="@/assets/img/logo1.png" alt="" style="width: 40px;height: 40px">
-                <span>管理员</span>
+                <img :src="user.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png\n'" alt="" style="width: 40px;height: 40px;border-radius: 50%">
+                <span>{{user.name}}</span>
               </div>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>个人信息</el-dropdown-item>
-                <el-dropdown-item>修改密码</el-dropdown-item>
-                <el-dropdown-item @click="">退出登录</el-dropdown-item>
+                <el-dropdown-item @click.native="$router.push('/perso')">个人信息</el-dropdown-item>
+                <el-dropdown-item @click.native="$router.push('/password')">修改密码</el-dropdown-item>
+                <el-dropdown-item @click.native="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -73,25 +56,7 @@
         </el-header>
 <!--     主体区域   -->
         <el-main>
-          <div style="box-shadow: 0 0 10px rgba(0,0,0,.1); padding: 10px 20px; border-radius: 5px; margin-bottom: 10px">
-            早安，骚年，祝你开心每一天！
-          </div>
-          <el-card style="width: 500px">
-            <div slot="header" class="clearfix">
-              <span>青哥哥带你做毕设2024</span>
-            </div>
-            <div>
-              2024毕设正式开始了！青哥哥带你手把手敲出来！
-              <div style="margin-top: 20px">
-                <div style="margin: 10px 0"><strong>主题色</strong></div>
-                <el-button type="primary">按钮</el-button>
-                <el-button type="success">按钮</el-button>
-                <el-button type="warning">按钮</el-button>
-                <el-button type="danger">按钮</el-button>
-                <el-button type="info">按钮</el-button>
-              </div>
-            </div>
-          </el-card>
+          <router-view @update:user="updateUser"/>
         </el-main>
 
       </el-container>
@@ -101,16 +66,37 @@
 </template>
 
 <script>
+import request from "@/utils/request";
+import router from "@/router";
+
 export default {
   name: 'HomeView',
   data() {
     return{
-      isCollaspe: true ,//不收缩
+      isCollaspe: false ,//不收缩
       asideWidth: '200px',
-      change:'el-icon-s-fold'
+      change:'el-icon-s-fold',
+      user: JSON.parse(localStorage.getItem('honey-user') || '{}'),
+
+    }
+  },
+  mounted() {  //页面加载完成之后触发
+    if (!this.user.id) {   // 当前的浏览器没有用户信息
+      this.$router.push('/login')
     }
   },
   methods:{
+    updateUser(user) {   // 获取子组件传过来的数据  更新当前页面的数据
+      this.user = JSON.parse(JSON.stringify(user))  // 让父级的对象跟子级的对象毫无关联
+    },
+    router() {
+      return router
+    },
+
+    logout(){
+      localStorage.removeItem('honey-user')  // 清除当前的token和用户数据
+      this.$router.push('/login')
+    },
     handelCollaspe(){
       this.isCollaspe = !this.isCollaspe
       this.asideWidth =this.isCollaspe ? '64px':'200px'

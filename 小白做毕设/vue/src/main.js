@@ -9,10 +9,12 @@ Vue.use(ElementUI, { size: 'small' });
 import '@/assets/css/global.css'
 import '@/assets/iconfont/iconfont.css'
 import '@/assets/theme/index.css'
+import request from "@/utils/request";
 
 
 
 Vue.config.productionTip = false
+Vue.prototype.$request=request
 
 new Vue({
   router,

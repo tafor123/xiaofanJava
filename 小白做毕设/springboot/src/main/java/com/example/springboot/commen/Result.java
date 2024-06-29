@@ -62,4 +62,7 @@ public class Result {
         return new Result(CODE_SYS_ERROR, "系统错误", null);
     }
 
+
+
+
 }
